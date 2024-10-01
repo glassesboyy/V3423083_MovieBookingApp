@@ -12,14 +12,14 @@ class Form {
 
     function displayForm() {
         echo "<form action='" . $this->action . "' method='post'>";
-        echo "<table width='100%'>";
+        echo "<table border='1' width='22%' align='left'>";
 
         for ($i = 0; $i < $this->jumField; $i++) {
             echo "<tr>
                     <td align='right'>" . $this->fields[$i]['label'] . "</td>
                     <td>";
 
-            // Check the type of input and display accordingly
+            // Cek tipe input dan tampilkan field sesuai dengan tipe
             if ($this->fields[$i]['type'] == 'dropdown') {
                 echo "<select name='" . $this->fields[$i]['name'] . "'>";
                 foreach ($this->fields[$i]['options'] as $option) {
@@ -33,14 +33,8 @@ class Form {
             } elseif ($this->fields[$i]['type'] == 'textarea') {
                 echo "<textarea name='" . $this->fields[$i]['name'] . "'></textarea>";
             } else {
-                // For other types like text, email, date, time, etc.
-                $attributes = '';
-                if (isset($this->fields[$i]['attributes'])) {
-                    foreach ($this->fields[$i]['attributes'] as $key => $value) {
-                        $attributes .= "$key='$value' ";
-                    }
-                }
-                echo "<input type='" . $this->fields[$i]['type'] . "' name='" . $this->fields[$i]['name'] . "' $attributes>";
+                // Untuk tipe lain seperti text, email, date, dll
+                echo "<input type='" . $this->fields[$i]['type'] . "' name='" . $this->fields[$i]['name'] . "'>";
             }
             echo "</td></tr>";
         }
@@ -50,12 +44,11 @@ class Form {
         echo "</form>";
     }
 
-    function addField($name, $label, $type = "text", $options = [], $attributes = []) {
+    function addField($name, $label, $type = "text", $options = []) {
         $this->fields[$this->jumField]['name'] = $name;
         $this->fields[$this->jumField]['label'] = $label;
-        $this->fields[$this->jumField]['type'] = $type; 
+        $this->fields[$this->jumField]['type'] = $type;
         $this->fields[$this->jumField]['options'] = $options;
-        $this->fields[$this->jumField]['attributes'] = $attributes;
         $this->jumField++;
     }
 }

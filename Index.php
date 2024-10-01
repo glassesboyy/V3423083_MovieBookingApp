@@ -1,26 +1,24 @@
 <?php
-require('Form.php'); // Pastikan file Form.php di-load
+require('Koneksi.php');  // Memanggil koneksi ke database
+require('Form.php');     // Memanggil class form
 
 // Membuat objek Form
-$forminput = new Form("", "Input User dan Booking");
+$forminput = new Form("", "Pesan Tiket");
 
 // Menambahkan field untuk User dan Booking
 $forminput->addField("nama", "Nama Pemesan", "text");
 $forminput->addField("email", "Email", "email");
 $forminput->addField("telepon", "Nomor Telepon", "tel");
-$forminput->addField("film", "Film", "dropdown", ["Film A", "Film B", "Film C"]); // Ganti dengan nama film yang sesuai
+$forminput->addField("film", "Film", "dropdown", ["Film A", "Film B", "Film C"]); // Nama film sesuai kebutuhan
 $forminput->addField("tanggalFilm", "Tanggal Film", "date");
 $forminput->addField("waktuFilm", "Waktu Film Tayang", "time");
-
-// Ubah 'jumlahTiket' untuk tidak menerima nilai negatif
-$forminput->addField("jumlahTiket", "Jumlah Tiket", "number", [], ['min' => 0]); // Menambahkan min 0
 
 // Ubah 'kursi' menjadi dropdown dari A1 hingga A10
 $kursiOptions = [];
 for ($i = 1; $i <= 10; $i++) {
     $kursiOptions[] = 'A' . $i; // Membuat array dari A1 hingga A10
 }
-$forminput->addField("kursi", "Kursi", "dropdown", $kursiOptions); // Menggunakan array untuk dropdown
+$forminput->addField("kursi", "Kursi", "dropdown", $kursiOptions);
 
 $forminput->addField("metodePembayaran", "Metode Pembayaran", "radio", ["Transfer Bank", "Cash"]);
 $forminput->addField("catatan", "Catatan Tambahan", "textarea");
@@ -38,9 +36,7 @@ if (isset($_POST['tombol'])) {
         !empty($_POST["film"]) &&
         !empty($_POST["tanggalFilm"]) &&
         !empty($_POST["waktuFilm"]) &&
-        !empty($_POST["jumlahTiket"]) &&
-        $_POST["jumlahTiket"] >= 0 && // Memastikan jumlah tiket tidak negatif
-        !empty($_POST["kursi"]) // Pastikan kursi tidak kosong
+        !empty($_POST["kursi"])
     ) {
         // Ambil data dari input
         $name = $_POST["nama"];
@@ -49,24 +45,35 @@ if (isset($_POST['tombol'])) {
         $film = $_POST["film"];
         $tanggalFilm = $_POST["tanggalFilm"];
         $waktuFilm = $_POST["waktuFilm"];
-        $jumlahTiket = $_POST["jumlahTiket"];
-        $kursi = $_POST["kursi"]; // Ambil nilai dari dropdown kursi
+        $kursi = $_POST["kursi"];
         $metodePembayaran = isset($_POST["metodePembayaran"]) ? $_POST["metodePembayaran"] : '';
         $catatan = $_POST["catatan"];
 
-        // Tampilkan hasil
-        echo "<h3>Detail Pemesanan:</h3>";
-        echo "Nama Pemesan: $name<br>";
-        echo "Email: $email<br>";
-        echo "Nomor Telepon: $telepon<br>";
-        echo "Film: $film<br>";
-        echo "Tanggal Film: $tanggalFilm<br>";
-        echo "Waktu Film Tayang: $waktuFilm<br>";
-        echo "Jumlah Tiket: $jumlahTiket<br>";
-        echo "Kursi: $kursi<br>"; // Tampilkan nomor kursi yang dipilih
-        echo "Metode Pembayaran: $metodePembayaran<br>";
-        echo "Catatan Tambahan: $catatan<br>";
+        // Query untuk memasukkan data ke database
+        $sql = "INSERT INTO pesanan_film (nama_pemesan, email, telepon, film, tanggal_film, waktu_film, kursi, metode_pembayaran, catatan)
+                VALUES ('$name', '$email', '$telepon', '$film', '$tanggalFilm', '$waktuFilm', '$kursi', '$metodePembayaran', '$catatan')";
+
+        if ($conn->query($sql) === TRUE) {
+            echo "<p style='color: green;'>Pemesanan berhasil ditambahkan ke database.</p>";
+
+            // Menampilkan detail pemesanan
+            echo "<h2>Detail Pemesanan:</h2>";
+            echo "<table border='1' width='25%' align='left'>";
+            echo "<tr><td>Nama Pemesan</td><td>$name</td></tr>";
+            echo "<tr><td>Email</td><td>$email</td></tr>";
+            echo "<tr><td>Telepon</td><td>$telepon</td></tr>";
+            echo "<tr><td>Film</td><td>$film</td></tr>";
+            echo "<tr><td>Tanggal Film</td><td>$tanggalFilm</td></tr>";
+            echo "<tr><td>Waktu Film</td><td>$waktuFilm</td></tr>";
+            echo "<tr><td>Kursi</td><td>$kursi</td></tr>";
+            echo "<tr><td>Metode Pembayaran</td><td>$metodePembayaran</td></tr>";
+            echo "<tr><td>Catatan Tambahan</td><td>$catatan</td></tr>";
+            echo "</table>";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conn->error;
+        }
     } else {
-        echo "<p style='color: red;'>Silakan isi semua field dengan benar. Pastikan jumlah tiket tidak negatif.</p>";
+        echo "<p style='color: red;'>Silakan isi semua field dengan benar.</p>";
     }
 }
+
